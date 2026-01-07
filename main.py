@@ -24,7 +24,7 @@ async def start_bridge():
     @client.on(events.NewMessage) # Listen to EVERYTHING first to debug
     async def handler(event):
         # This will print every message you see in the Render Logs
-        print(f"DEBUG: Message from {event.chat_id}: {event.text}")
+        # print(f"DEBUG: Message from {event.chat_id}: {event.text}")
         
         if event.chat_id == SOURCE_ID:
             await client.send_message(TARGET_ID, event.text)

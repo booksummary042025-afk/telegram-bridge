@@ -1,20 +1,15 @@
-import os
-import asyncio
+import os, asyncio
 from telethon import TelegramClient, events
 from telethon.sessions import StringSession
 from flask import Flask
 from threading import Thread
 
-# 1. Create a tiny fake website
 app = Flask('')
 @app.route('/')
-def home():
-    return "Bridge is alive!"
+def home(): return "Bridge is alive!"
 
-def run_flask():
-    app.run(host='0.0.0.0', port=8080)
+def run_flask(): app.run(host='0.0.0.0', port=10000)
 
-# 2. Your Bridge Code
 API_ID = int(os.environ.get("API_ID"))
 API_HASH = os.environ.get("API_HASH")
 SESSION_STRING = os.environ.get("SESSION_STRING")
@@ -24,18 +19,19 @@ TARGET_ID = int(os.environ.get("TARGET_ID"))
 async def start_bridge():
     client = TelegramClient(StringSession(SESSION_STRING), API_ID, API_HASH)
     await client.start()
-    print("✅ Bridge is running!")
+    print("✅ BRIDGE CONNECTED SUCCESSFULLY")
 
-    @client.on(events.NewMessage(chats=SOURCE_ID))
+    @client.on(events.NewMessage) # Listen to EVERYTHING first to debug
     async def handler(event):
-        if event.text:
+        # This will print every message you see in the Render Logs
+        print(f"DEBUG: Message from {event.chat_id}: {event.text}")
+        
+        if event.chat_id == SOURCE_ID:
             await client.send_message(TARGET_ID, event.text)
-    
+            print("🚀 FORWARD SUCCESSFUL")
+
     await client.run_until_disconnected()
 
 if __name__ == "__main__":
-    # Start the fake website in a separate thread
-    t = Thread(target=run_flask)
-    t.start()
-    # Start the Telegram bridge
+    Thread(target=run_flask).start()
     asyncio.run(start_bridge())
